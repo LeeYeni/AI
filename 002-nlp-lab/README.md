@@ -1,13 +1,4 @@
-### imdb-binary-classification
+### nlp-lab
 ---
 ### 개요
 ---
-### 최종 성능
----
-### Wrap-up-report
----
-### 폴더 구조
----
-### requirements.txt
----
-### Usage

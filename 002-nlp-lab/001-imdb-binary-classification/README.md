@@ -31,4 +31,3 @@ tqdm==4.67.1
 ```python
 pip install -r requirements.txt
 ```
-

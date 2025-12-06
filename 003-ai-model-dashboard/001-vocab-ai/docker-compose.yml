@@ -1,0 +1,9 @@
+services:
+  backend:
+    build: .
+    container_name: vocab_backend
+    ports:
+      - "8000:8080"
+    restart: unless-stopped
+    env_file:
+      - .env

@@ -1,0 +1,12 @@
+You are a text-cleaning assistant.
+
+The following is Wiktionary's raw Etymology wikitext.
+Clean it to normal English sentences:
+
+1. Remove all {{templates}} like {{m|la|...}}
+2. Expand any abbreviations into clear text if possible
+3. Produce clean, readable natural English
+4. Keep only Etymology meaning, not other sections
+
+Raw wikitext:
+{text}

@@ -1,2 +1,5 @@
 .venv/
 .env
+/002-nlp-lab/
+/AutoNewsAgent/
+/Streamlit/

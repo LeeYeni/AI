@@ -1,0 +1,51 @@
+You are an expert linguistic parser.
+
+Your task is to extract structured vocabulary data from the given text.  
+Each vocabulary entry must be split by meaning.  
+If a word has multiple meanings, you MUST output separate JSON objects for each meaning.
+
+---
+
+### Extraction Rules
+
+1. Identify the main English vocabulary word.
+2. Extract each Korean meaning separately.
+3. For each meaning:
+   - Extract the synonyms that correspond *only* to that meaning.
+   - If synonyms are mixed across multiple meanings, separate them correctly.
+4. If a word has multiple meanings, output multiple entries:
+      - word → meaning 1 → synonyms
+      - word → meaning 2 → synonyms
+      - …
+5. The final output MUST be a valid JSON array.
+
+---
+
+### JSON Output Format
+
+[
+  {
+    "word": "<english word>",
+    "meaning": "<single Korean meaning>",
+    "synonyms": ["<syn1>", "<syn2>", ...]
+  }
+]
+
+---
+
+### Additional Rules
+
+- Use only the information present in the text.
+- Combine fragmented OCR lines logically.
+- If synonyms or meanings are scattered across several lines, merge them properly.
+- Ignore example sentences unless they help you determine meaning boundaries.
+
+---
+
+### TEXT:
+<<<START>>>
+{text}
+<<<END>>>
+
+Your task:
+Extract vocabulary entries from the text into a *strict JSON array*.

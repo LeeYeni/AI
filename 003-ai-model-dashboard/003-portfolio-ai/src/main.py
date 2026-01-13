@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from service.nickname_service import get_nickname
-from service.chatbot_service import get_chatbot_response
+from src.service.nickname_service import get_nickname
+from src.service.chatbot_service import get_chatbot_response
 
 app = FastAPI()
 

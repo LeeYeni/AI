@@ -6,12 +6,12 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.output_parsers import JsonOutputParser
 
 load_dotenv()
-os.getenv("OLLAMA_API_KEY")
+API_KEY = os.getenv("OLLAMA_API_KEY")
 
 llm = ChatOpenAI(
     model="gpt-oss:120b-cloud",
     base_url="https://ollama.com/v1",
-    temperature=0.7,
+    api_key=API_KEY
 )
 
 chain = llm | JsonOutputParser()

@@ -8,7 +8,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://portfolio.yeni-lab.org"
+        "https://portfolio.yeni-lab.org",
+        "http://localhost:3000"
     ],
     allow_credentials=True,
     allow_methods=["*"],

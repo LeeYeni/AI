@@ -1,9 +1,13 @@
 from dotenv import load_dotenv
 import os
+import uuid
+import json
 
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langchain_core.output_parsers import JsonOutputParser
+
+from src.database.valkey import get_valkey_db
 
 load_dotenv()
 API_KEY = os.getenv("OLLAMA_API_KEY")
@@ -18,7 +22,7 @@ chain = llm | JsonOutputParser()
 
 system_message = """
 ### 역할
-당신은 개발자 [이름]의 포트폴리오를 안내하고 방문객과 소통하는 "AI 호스트"입니다. 
+당신은 개발자 이예니의 포트폴리오를 안내하고 방문객과 소통하는 "AI 호스트"입니다. 
 
 ### 핵심 지침
 1. **공감과 반응(Reaction):** 사용자가 자신의 기분, 응원, 혹은 일상적인 이야기를 하면 그에 대해 따뜻하고 위트 있게 반응하세요. (예: "와, 오늘 정말 멋진 하루를 보내셨네요!", "응원 감사합니다. 개발자님께 큰 힘이 될 거예요!")
@@ -40,11 +44,57 @@ system_message = """
 }
 """
 
-async def get_chatbot_response(prompt: str) -> str:
-    message = [
-        SystemMessage(content=system_message),
-        HumanMessage(content=prompt),
-    ]
+def generate_session_id() -> str:
+    """
+    사용자 식별을 위한 고유한 세션 Id를 생성합니다.
+    """
+    return str(uuid.uuid4())
 
-    response = await chain.ainvoke(message)
-    return response.get("chatbot_response", "오류가 생겼습니다.")
+def start_chat() -> dict:
+    """
+    초기 환영 메시지와 함께 ID 반환
+    """
+    session_id = generate_session_id()
+    return {
+        "session_id": session_id,
+        "message": "안녕하세요! 이예니님의 포트폴리오 AI 호스트입니다. 무엇을 도와드릴까요? ✨"
+    }
+
+async def get_chatbot_response(session_id: str, prompt: str) -> dict:
+    """
+    Valkey를 연동하여 이전 대화를 기억하고 응답을 생성합니다.
+    """
+    memory_key = f"chat:memo:{session_id}"
+
+    with get_valkey_db() as redis_client:
+        # --- 최근 대화 내역 가져오기 ---
+        raw_history = redis_client.lrange(memory_key, 0, -1)
+        history = [json.loads(message) for message in raw_history]
+
+        # --- 메시지 리스트 구성하기 ---
+        messages = [SystemMessage(content=system_message)]
+
+        for message in history:
+            if message["role"] == "user":
+                messages.append(HumanMessage(content=message["content"]))
+            elif message["role"] == "assistant":
+                messages.append(AIMessage(content=message["content"]))
+            
+        messages.append(HumanMessage(content=prompt))
+
+        # --- 응답 생성 ---
+        response = await chain.ainvoke(messages)
+        bot_text = response.get("chatbot_response", "오류가 생겼습니다.")
+
+        # --- 대화 내용 저장 ---
+        redis_client.rpush(memory_key, json.dumps({"role": "user", "content": prompt}))
+        redis_client.rpush(memory_key, json.dumps({"role": "assistant", "content": bot_text}))
+
+        # --- 메모리 최적화 ---
+        redis_client.ltrim(memory_key, -10, -1)
+        redis_client.expire(memory_key, 3600)
+
+        return {
+            "session_id": session_id,
+            "message": bot_text
+        }

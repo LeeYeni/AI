@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.service.nickname_service import generate_and_save_nicknames
+from src.service.nickname_service import get_nickname_from_pool
 from src.service.chatbot_service import get_chatbot_response
 
 app = FastAPI()
@@ -18,7 +18,7 @@ app.add_middleware(
 
 @app.get("/api/nickname")
 async def read_nickname():
-    nickname = await generate_and_save_nicknames()
+    nickname = await get_nickname_from_pool()
     return {
         "nickname": nickname
     }

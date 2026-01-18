@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
 from src.service.chatbot_service import start_chat, get_chatbot_response
 
 router = APIRouter(
@@ -6,7 +7,7 @@ router = APIRouter(
     tags=["Chatbot"]
 )
 
-class ChatRequest:
+class ChatRequest(BaseModel):
     session_id: str
     prompt: str
 

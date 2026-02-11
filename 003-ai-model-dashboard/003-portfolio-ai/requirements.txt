@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-python-dotenv
-langchain-openai
-langchain-core
-redis
-pymysql
-langchain-chroma
-psycopg2-binary
